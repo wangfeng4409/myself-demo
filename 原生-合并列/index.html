@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>原生合并列</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+</head>
+<body>
+    <style>
+        .my__table {
+            padding: 20px 40px;
+        }
+        .my__table .my__table-userdefined {
+            width: 100%;
+            border: none;
+        }
+        .my__table .my__table-userdefined th {
+            background-color: #60A4FF;
+            height: 40px;
+            line-height: 40px;
+            color: #fff !important;
+            font-size: 15px;
+            text-align: center;
+            border: 1px solid #EBEEF5;
+        }
+        .my__table .my__table-userdefined td {
+            height: 40px;
+            text-align: center;
+            line-height: 40px;
+            font-size: 14px;
+            border: 1px solid #EBEEF5;
+        }
+        .my__table .my__table-userdefined tbody:hover {
+            background: #ECF0F7;
+        }
+    </style>
+    <div id="app">
+        <div class="my__table">
+            <table rules="none" cellspacing="0" class="my__table-userdefined">
+                <thead>
+                    <tr>
+                        <th>商品编号</th>
+                        <th>商品名称</th>
+                        <th>商品口味</th>
+                        <th>商品规格</th>
+                        <th>商品批次</th>
+                    </tr>
+                </thead>
+                <tbody v-for="(items, indexs) in tableList" :key="indexs">
+                    <tr v-for="(item, index) in items.shopMsg" :key="index">
+                        <td v-if="index==0" :rowspan="items.shopMsg.length">{{ items.shopNum }}</td>
+                        <td v-if="index==0" :rowspan="items.shopMsg.length">{{ items.shopName }}</td>
+                        <td>{{ item.flavor }}</td>
+                        <td>{{ item.spec }}</td>
+                        <td>{{ item.batch }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    tableList: [{
+                        shopNum: '111',
+                        shopName: '商品名称1',
+                        shopMsg: [{
+                            flavor: '商品口味11',
+                            spec: '商品规格11',
+                            batch: '商品批次11'
+                        },{
+                            flavor: '商品口味12',
+                            spec: '商品规格12',
+                            batch: '商品批次12'
+                        },]
+                    },{
+                        shopNum: '222',
+                        shopName: '商品名称2',
+                        shopMsg: [{
+                            flavor: '商品口味21',
+                            spec: '商品规格21',
+                            batch: '商品批次21'
+                        }]
+                    }]
+                }
+            },
+        })
+    </script>
+</body>
+</html>

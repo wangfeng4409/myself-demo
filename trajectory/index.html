@@ -1,0 +1,285 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+    <title>轨迹回放</title>
+    <link rel="stylesheet" href="https://a.amap.com/jsapi_demos/static/demo-center/css/demo-center.css"/>
+    <style>
+        html, body, #container {
+            height: 100%;
+            width: 100%;
+        }
+        .input-card {
+            display: none;
+            width: 35rem;
+            right: 0rem;
+            left: 1rem;
+            bottom: 2rem;
+            opacity: 0.7;
+        }
+        .input-card .box {
+            display: flex;
+            position: relative;
+            margin-right: 1.2rem;
+            width: 10rem;
+            height: 2.5rem;
+            padding: .25rem .5rem;
+            line-height: 2;
+            border-radius: 15px;
+            color: #ffffff;
+        }
+        .input-card .box .icon {
+            position: absolute;
+            top: 3px;
+            width: 24px;
+            height: 24px;
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+        }
+        .input-card .box .text {
+            margin-left: 26px;
+        }
+        .input-card .box:last-child{
+            margin-right: 0;
+        }
+        .input-card .legend {
+            display: flex;
+            position: relative;
+            margin-right: 1.2rem;
+            width: 10rem;
+            height: 2.5rem;
+            padding: .25rem .5rem;
+            font-size: 16px;
+            line-height: 2;
+            border-radius: 15px;
+            color: #738299;
+            cursor: pointer;
+        }
+        .input-card .legend .icon {
+            position: absolute;
+            top: 12px;
+            width: 8px;
+            height: 14px;
+            margin-left: 68px;
+            background-image: url(./left.png);
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+        }
+        .show-input-card {
+            position: fixed;
+            width: 10rem;
+            right: 0rem;
+            left: 1rem;
+            bottom: 2rem;
+            opacity: 0.7;
+            border-width: 0;
+            border-radius: 0.4rem;
+            box-shadow: 0 2px 6px 0 rgba(114, 124, 245, .5);
+            background-color: #fff;
+            background-clip: border-box;
+            padding: 0rem 1.25rem 0.75rem;
+        }
+        .show-legend {
+            display: flex;
+            position: relative;
+            margin-right: 1.2rem;
+            width: 8rem;
+            height: 2.5rem;
+            padding: .25rem;
+            font-size: 16px;
+            line-height: 2;
+            border-radius: 15px;
+            color: #738299;
+            cursor: pointer;
+        }
+        .show-legend .text {
+            color: #ff788e;
+        }
+        .show-legend .icon {
+            position: absolute;
+            top: 12px;
+            width: 8px;
+            height: 14px;
+            margin-left: 68px;
+            background-image: url(./right.png);
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+        }
+        .amap-marker-label {
+            top: -38px !important;
+        }
+        .amap-icon {
+            width: 28px;
+            height: 28px;
+        }
+        .amap-icon img {
+            width: 28px;
+            height: 28px;
+        }
+    </style>
+</head>
+<body>
+<div id="container"></div>
+<div class="input-card" id="input-card">
+    <div class="input-item">
+        <div class="box" style="background: rgba(255,151,71,1);">
+            <div class="icon" style="background-image: url(./attendance.png);"></div>
+            <div class="text">上班打卡地点</div>
+        </div>
+        <div class="box" style="background: rgba(97,164,255,1)">
+            <div class="icon" style="background-image: url(./store.png);"></div>
+            <div class="text">终端门店</div>
+        </div>
+        <div class="box" style="background: rgba(97,164,255,1)">
+            <div class="icon" style="background-image: url(./student.png);"></div>
+            <div class="text">学生代理</div>
+        </div>
+    </div>
+    <div class="input-item">
+        <div class="box" style="background: rgba(155,194,39,1)">
+            <div class="icon" style="background-image: url(./attendance.png);"></div>
+            <div class="text">下班打卡地点</div>
+        </div>
+        <div class="box" style="background: rgba(255,120,142,1)">
+            <div class="icon" style="background-image: url(./store.png);"></div>
+            <div class="text">终端开户成功</div>
+        </div>
+        <div class="box" style="background: rgba(255,120,142,1)">
+            <div class="icon" style="background-image: url(./student.png);"></div>
+            <div class="text">学代开户成功</div>
+        </div>
+    </div>
+    <div class="input-item">
+        <div class="box" style="visibility: hidden;">上班打卡地点</div>
+        <div class="box" style="background: rgba(115,130,153,1)">
+            <div class="icon" style="background-image: url(./store.png);"></div>
+            <div class="text">终端开户失败</div>
+        </div>
+        <div class="box" style="background: rgba(115,130,153,1)">
+            <div class="icon" style="background-image: url(./student.png);"></div>
+            <div class="text">学代开户失败</div>
+        </div>
+    </div>
+    <div class="input-item">
+        <div class="box" style="visibility: hidden;">下班打卡地点</div>
+        <div class="box" style="background: rgba(97,164,255,1)">
+            <div class="icon" style="background-image: url(./no_abnormal.png);"></div>
+            <div class="text">异常拜访</div>
+        </div>
+        <div class="box" style="background: rgba(97,164,255,1)">
+            <div class="icon" style="background-image: url(./order.png);"></div>
+            <div class="text">客户下单</div>
+        </div>
+    </div>
+    <div class="input-item">
+        <div class="legend" onclick="hideLegend()">
+            <div class="text">隐藏图例</div>
+            <div class="icon"></div>
+        </div>
+    </div>
+</div>
+<div class="show-input-card" id="show-input-card" onclick="showLegend()">
+    <div class="show-legend">
+        <div class="text">显示图例</div>
+        <div class="icon"></div>
+    </div>
+</div>
+
+<script type="text/javascript" src="https://webapi.amap.com/maps?v=1.4.15"></script>
+<script>
+    var lineArr = [[116.478935,39.997761],[116.478939,39.997825],[116.478912,39.998549],[116.478912,39.998559],[116.478998,39.998555],[116.478998,39.998555],[116.479282,39.99856],[116.479658,39.998528],[116.480151,39.998453],[116.480784,39.998302],[116.480784,39.998302],[116.481149,39.998184],[116.481573,39.997997],[116.481863,39.997846],[116.482072,39.997718],[116.482362,39.997718],[116.483633,39.998935],[116.48367,39.998968],[116.484648,39.999861]];
+
+    var map = new AMap.Map("container", {
+        resizeEnable: true,
+        center: [116.397428, 39.90923],
+        zoom: 17
+    });
+
+    var markers = [{
+        position: [116.480151,39.998549],
+        title: '终端门店',
+        icon: './store_mark.png'
+    }, {
+        position: [116.481863,39.99856],
+        title: '终端开户成功',
+        icon: './store_success_mark.png'
+    }, {
+        position: [116.483633,39.998302],
+        title: '终端开户失败',
+        icon: './store_fail_mark.png'
+    }, {
+        position: [116.483633,39.997846],
+        title: '学生代理',
+        icon: './student_mark.png'
+    },{
+        position: [116.483633,39.998935],
+        title: '学生代理成功',
+        icon: './student_success_mark.png'
+    },{
+        position: [116.478912,39.998549],
+        title: '异常拜访',
+        icon: './no_abnormal.png'
+    },{
+        position: [116.484648,39.999861],
+        title: '下班打卡地点',
+        icon: './off_duty_mark.png'
+    }];
+    markers.forEach(function(marker) {
+        new AMap.Marker({
+            map: map,
+            title: marker.title,
+            // label: {
+            //     content: marker.title,
+            //     direction: 'top'
+            // },
+            icon: marker.icon,
+            position: marker.position,
+            // offset: new AMap.Pixel(0, 0),
+        });
+    });
+    var marker = new AMap.Marker({
+        map: map,
+        title: '上班打卡地点',
+        // label: {
+        //     content: '上班打卡地点',
+        //     direction: 'top'
+        // },
+        position: [116.478935,39.997761],
+        icon: "./attendance_mark.png",
+        // offset: new AMap.Pixel(0, 0)
+    });
+
+    // 绘制轨迹
+    var polyline = new AMap.Polyline({
+        map: map,
+        path: lineArr,
+        showDir: true,
+        strokeColor: "#28F",  //线颜色
+        strokeOpacity: 1,     //线透明度
+        strokeWeight: 6,      //线宽
+        strokeStyle: "solid"  //线样式
+    });
+    map.setFitView();
+
+    function showLegend() {
+        document.getElementById('show-input-card').style.display = 'none';
+        document.getElementById('input-card').style.display = 'block';
+    }
+    function hideLegend() {
+        document.getElementById('input-card').style.display = 'none';
+        document.getElementById('show-input-card').style.display = 'block';
+    }
+    map.on('complete', function() {
+        let listDom = document.getElementsByClassName('amap-icon')
+        for (let i in listDom) {
+            listDom[i].onclick = function () {
+                console.log(this.getAttribute('title'))
+                // window.location.href = '111'
+            }
+        }
+    });
+</script>
+</body>
+</html>

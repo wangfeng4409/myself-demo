@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+</head>
+<body>
+    <style>
+        .my__select {
+            width: 150px;
+            position: relative;
+        }
+        .my__select .my__select-title {
+            width: 150px;
+            height: 30px;
+            line-height: 30px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #2B343D;
+            padding: 0px 10px;
+            cursor: pointer;
+        }
+        .my__select .my__select-content {
+            position: relative;
+            background-color: rgba(0,0,0,0.2);
+        }
+        .my__select .my__select-content .my__select-content-box {
+            position: relative;
+            width: 150px;
+            height: 30px;
+            line-height: 30px;
+            font-size: 16px;
+            text-align: center;
+            cursor: pointer;
+        }
+        .my__select .my__select-content .my__select-content-box:hover {
+            background: #5d7eac;
+            color: #ffffff;
+        }
+        .my__select .my__select-content .my__select-content-box .my__select-content-son {
+            display: none;
+            position: absolute;
+            width: 150px;
+            top: 0px;
+            left: 150px;
+            background-color: rgba(0,0,0,0.2);
+        }
+        .my__select .my__select-content .my__select-content-box:hover .my__select-content-son {
+            display: block;
+        }
+        .my__select .my__select-content .my__select-content-box .my__select-content-son .my__select-content-sonbox {
+            width: 150px;
+            height: 30px;
+            line-height: 30px;
+            font-size: 16px;
+            text-align: center;
+            cursor: pointer;
+            color: #000000;
+        }
+        .my__select .my__select-content .my__select-content-box .my__select-content-son .my__select-content-sonbox:hover {
+            background: #5d7eac;
+            color: #ffffff;
+        }
+        .my__select .my__select-content .my__select-content-box-active,.my__select-content-box-active:hover {
+            background: #61a3ff !important;
+            color: #ffffff;
+        }
+        .my__select .my__select-content .my__select-content-box .my__select-content-son .my__select-content-sonbox-active,.my__select-content-sonbox-active:hover {
+            background: #61a3ff !important;
+            color: #ffffff;
+        }
+    </style>
+    <div id="app">
+        <div class="my__select">
+            <div class="my__select-title">{{ selectContent }}</div>
+            <div class="my__select-content">
+                <div class="my__select-content-box" v-for="(item, index) in selectList" :class="selectIndex==index?'my__select-content-box-active':''" :key="index" @click="slectName(index, item.name)">
+                    <div class="my__select-content-box-text">{{ item.name }}</div>
+                    <div class="my__select-content-son" v-if="item.sonList">
+                        <div class="my__select-content-sonbox" v-for="(item1, index1) in item.sonList" :class="sonSelectIndex['sonSelectIndex'+item.num]==index1?'my__select-content-sonbox-active':''" :key="index1" @click="sonSlectName(index, index1, item.name, item1.name)">
+                            <div class="my__select-content-sonbox-text">{{ item1.name }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    selectContent: '筛选客户',
+                    selectList: [
+                        {name: '全部门店'},
+                        {name: '特通门店'},
+                        {name: '终端门店', num: 0, sonList: [{name: '终端门店(全部)'},{name: '终端门店(满意)'}]},
+                        {name: '学代门店', num: 1, sonList: [{name: '学代门店(全部)'},{name: '学代门店(满意)'}]},
+                        {name: '潜在学代'},
+                        {name: '潜在终端'},
+                    ],
+                    selectIndex: 0,
+                    sonSelectIndex: {
+                        sonSelectIndex0: null,
+                        sonSelectIndex1: null
+                    }
+                }
+            },
+            mounted() {
+                
+            },
+            methods: {
+                slectName(index, name) {
+                    if (name === '全部门店') {
+                        this.selectIndex = index;
+                        this.sonSelectIndex = {
+                            sonSelectIndex0: null,
+                            sonSelectIndex1: null
+                        };
+                        this.selectContent = '筛选客户';
+                    } else if (name === '终端门店' || name === '学代门店') {
+                        
+                    } else {
+                        this.selectIndex = index;
+                        this.sonSelectIndex = {
+                            sonSelectIndex0: null,
+                            sonSelectIndex1: null
+                        };
+                        this.selectContent = name;
+                    }
+                },
+                sonSlectName(index, index1, name, name1) {
+                    this.selectIndex = index;
+                    this.selectContent = name1;
+                    if (name === '终端门店') {
+                        this.sonSelectIndex = {
+                            sonSelectIndex0: index1,
+                            sonSelectIndex1: null
+                        };
+                    } else if (name === '学代门店') {
+                        this.sonSelectIndex = {
+                            sonSelectIndex0: null,
+                            sonSelectIndex1: index1
+                        };
+                    }
+                }
+            }
+        })
+    </script>
+</body>
+</html>

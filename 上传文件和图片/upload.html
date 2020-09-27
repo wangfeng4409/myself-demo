@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+</head>
+<body>
+    <style>
+        img {
+            width: 80px;
+        }
+    </style>
+    <div id="app">
+        <div>
+            上传文件
+            <input ref="file" type="file" @change="changeFile">
+        </div>
+        <div>
+            上传图片
+            <input ref="image" type="file" @change="changeImage">
+            <img :src="imageUrl" alt="">
+        </div>
+    </div>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    reads: new FileReader(),
+                    file: '',// 上传到文件
+                    imgSize: Boolean,
+                    imageFile: '',// 上传的图片文件
+                    imageUrl: '',// 上传的图片的url
+                }
+            },
+            methods: {
+                // 上传文件
+                changeFile() {
+                    const uploadFile = this.$refs.file.files[0];
+                    console.log(uploadFile)
+                    if (uploadFile.name.split('.')[1] === 'xls') {
+                        this.reads.readAsText(uploadFile);
+                        this.reads.onload = (e) => {
+                            this.file = e.target.result;
+                        }
+                    }
+                },
+                // 上传图片
+                changeImage() {
+                    const uploadFile = this.$refs.image.files[0];
+                    if ((uploadFile.type === 'image/jpeg') || (uploadFile.type === 'image/png') || (uploadFile.type === 'image/jpg')) {
+                        this.reads.readAsDataURL(uploadFile);
+                        this.reads.onload = (e) => {
+                            this.imgSize = e.loaded / 1024 / 1024 > 2;
+                            if (!this.imgSize) {
+                                this.imageFile = e.target.result;
+                                this.imageUrl = window.URL.createObjectURL(uploadFile);
+                            } else {
+                                this.$message.error('上传图片大小不能超过 2MB!');
+                            }
+                        }
+                    }
+                },
+            }
+        })
+    </script>
+</body>
+</html>

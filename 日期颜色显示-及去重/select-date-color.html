@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+</head>
+<body>
+    <style>
+        .red span {
+            background: #FF3B3B;
+            color: #fff;
+            border-radius: 50%;
+        }
+        .blue span {
+            background: #32c87c;
+            color: #fff;
+            border-radius: 50%;
+        }
+    </style>
+    <div id="app">
+        <el-date-picker
+            v-model="date"
+            type="date"
+            value-format="yyyy-MM-dd"
+            :picker-options="pickerOptions">
+        </el-date-picker>
+    </div>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    date: '',
+                    redDateList: ["2020-03-01", "2020-03-02", "2020-03-03", "2020-03-04", "2020-03-05", "2020-03-06", "2020-03-07",
+                        "2020-03-08", "2020-03-09", "2020-03-10", "2020-03-11", "2020-03-12", "2020-03-13", "2020-03-14",
+                        "2020-03-15", "2020-03-16", "2020-03-17", "2020-03-18", "2020-03-19", "2020-03-20", "2020-03-21",
+                        "2020-03-22", "2020-03-23", "2020-03-24", "2020-03-25", "2020-03-26", "2020-03-27", "2020-03-28",
+                        "2020-03-29", "2020-03-30", "2020-03-31"],// 没有规划路线的日期
+                    blueDateList: ["2020-03-16", "2020-03-21"],// 规划路线的日期
+                    pickerOptions: {
+                        disabledDate(time) {
+                            return time.getTime() < new Date('2020/03/17').getTime();
+                        }
+                    }
+                }
+            },
+            mounted() {
+                for (let i = 0; i < this.blueDateList.length; i++) {
+                    this.redDateList.forEach((ele, index) => {
+                        if (this.blueDateList[i] == ele) {
+                            this.redDateList.splice(index, 1)
+                        }
+                    })
+                };
+                this.redDateList = this.redDateList.filter(item => new Date('2020/03/17').getTime() <= new Date(item).getTime());
+                this.blueDateList = this.blueDateList.filter(item => new Date('2020/03/17').getTime() <= new Date(item).getTime());
+                this.pickerOptions.cellClassName = (time) => {
+                    for (let i = 0;i < this.redDateList.length;i++) {
+                        if (new Date(''+new Date().getFullYear()+'/'+(new Date().getMonth()+1)+'/'+new Date().getDate()).getTime()  - time.getTime() === new Date(''+new Date().getFullYear()+'/'+(new Date().getMonth()+1)+'/'+new Date().getDate()).getTime()  - new Date(this.redDateList[i].replace(/-/g, "/")).getTime()) {
+                            return 'red';
+                        }
+                    }
+                    for (let i = 0;i < this.blueDateList.length;i++) {
+                        if (new Date(''+new Date().getFullYear()+'/'+(new Date().getMonth()+1)+'/'+new Date().getDate()).getTime()  - time.getTime() === new Date(''+new Date().getFullYear()+'/'+(new Date().getMonth()+1)+'/'+new Date().getDate()).getTime()  - new Date(this.blueDateList[i].replace(/-/g, "/")).getTime()) {
+                            return 'blue';
+                        }
+                    }
+                }
+            }
+        })
+    </script>
+</body>
+</html>

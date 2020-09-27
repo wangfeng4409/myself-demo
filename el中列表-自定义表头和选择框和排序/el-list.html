@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>el-自定义表头和选择框</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+</head>
+<body>
+    <style>
+        .wrapper-table .el-table th .user-defined-header {
+            position: relative;
+            margin-top: 8px;
+            display: inline-block;
+            line-height: 1;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            white-space: nowrap;
+        }
+        .wrapper-table .el-table th .user-defined-header .user-defined-select {
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+        }
+        .wrapper-table .el-table .ascending .sort-caret.ascending {
+            border-bottom-color: #fff;
+        }
+        .wrapper-table .el-table .descending .sort-caret.descending {
+            border-top-color: #fff;
+        }
+    </style>
+    <div id="app">
+        <div class="wrapper-table">
+            <el-table 
+                :data="tableData" 
+                ref="multipleTable"
+                tooltip-effect="dark"
+                @sort-change="sortChange"
+                :header-cell-style="{background:'#589CFF',color:'#ffffff'}"
+                style="width: 100%" border>
+                <el-table-column prop="customer" label="商品" align="center">
+                    <template slot-scope="scope">
+                        {{ scope.row.customer }}
+                    </template>
+                    <template slot="header">
+                        <div class="user-defined-header">
+                            <span>客户类型 <i class="el-icon-caret-bottom"></i></span>
+                            <select class="user-defined-select" id="userSelect" v-model="selectType" @change="wrapperSelectStatus">
+                                <option label="全部" value="">全部</option>
+                                <option label="学代" value="1">学代</option>
+                                <option label="终端" value="2">终端</option>
+                            </select>
+                        </div>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="sku" label="其他信息" align="center" sortable="custom" :sort-orders="sortOrders">
+
+                </el-table-column>
+                <el-table-column prop="shop" label="商品" align="center" sortable="custom" :sort-orders="sortOrders">
+
+                </el-table-column>
+            </el-table>
+        </div>
+        <div>
+            <el-pagination
+                :current-page="currentPage"
+                :page-sizes="[ 4, 8, 12]"
+                :page-size="pageSize"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="total"
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange">
+            </el-pagination>
+        </div>
+    </div>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    tableData:[{
+                        customer: "终端",
+                        sku: "1128",
+                        shop: '商品'
+                    }],
+                    selectType: '',
+                    currentPage: 1, // 展示第几页 的 数据信息
+                    pageSize: 4, // 每页展示多少条数据
+                    total: 3,
+                    sortOrders: ['ascending', 'descending', null],// ascending 表示升序，descending 表示降序，null 表示还原为原始顺序
+                }
+            },
+            methods: {
+                handleSizeChange(val) {
+                    this.currentPage = 1;
+                    this.pageSize = val;
+                },
+                handleCurrentChange(val) {
+                    this.currentPage = val;
+                },
+                wrapperSelectStatus() {
+                    
+                },
+                sortChange(column) {
+                    console.log(column)
+                }
+            }
+        })
+    </script>
+</body>
+</html>

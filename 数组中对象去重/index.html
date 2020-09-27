@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>数组中对象去重</title>
+</head>
+<body>
+    <script>
+        // 数据去重
+        let arr = [{id: 1,name: 'wf'},{id: 2},{id: 1},{id: 3},{id: 1},{id: 1,name: '111'}];
+        for (let i = 0,len=arr.length;i<len;i++) {
+            for (let j = i+1;j<len;j++) {
+                if (arr[i].id == arr[j].id) {
+                    arr.splice(j,1);
+                    j--;
+                    len--;
+                }
+            }
+        }
+        console.log(arr);
+    </script>
+</body>
+</html>

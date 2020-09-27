@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+</head>
+<body>
+    <div id="app">
+        <div>
+            <el-table :data="list" 
+                ref="multipleTable" @selection-change="handleSelectionChange" 
+                style="width: 100%" border>
+                <el-table-column type="selection" width="55" align="center"></el-table-column>
+                <el-table-column prop="index" label="序号" align="center"></el-table-column>
+                <el-table-column prop="productTemplateName" label="商品" align="center"></el-table-column>
+                <el-table-column prop="orderItemKey" label="商品规格" align="center"></el-table-column>
+                <el-table-column prop="sku" label="其他信息" align="center"></el-table-column>
+            </el-table>
+        </div>
+        <div>
+            <el-pagination
+                :current-page="currentPage"
+                :page-sizes="[4,8,12]"
+                :page-size="pageSize"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="total"
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange">
+            </el-pagination>
+        </div>
+    </div>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    tableData:[],
+                    list: [],
+                    currentPage: 1, // 展示第几页 的 数据信息
+                    pageSize: 4, // 每页展示多少条数据
+                    total: 20,
+                    multipleSelection: [], // 记录所勾选的table
+                    selectTableObject: {}, // 记录分页前选中的table object
+                    selectTableList: [], // 记录所有所选的table
+                }
+            },
+            created() {
+                for (let i = 0;i < 20;i++) {
+                    this.tableData.push({
+                        productTemplateName: "芝士仙贝*"+(i+1),
+                        orderItemKey: "11026",
+                        index: i+1,
+                        sku: "1128"
+                    })
+                }
+            },
+            mounted() {
+                this.fetchData();
+            },
+            updated() {
+                // 不可记录条数改变后的分页多选
+                // if (this.selectTableObject[this.currentPage - 1] && this.selectTableObject[this.currentPage - 1].length > 0) {
+                //     this.$refs.multipleTable.clearSelection();
+                //     this.selectTableObject[this.currentPage - 1].forEach(row => {
+                //         this.$refs.multipleTable.toggleRowSelection(row, true)
+                //     })
+                // }
+
+                // 可记录条数改变后的分页多选
+                this.$refs.multipleTable.clearSelection();
+                this.selectTableList.forEach(row => {
+                    this.$refs.multipleTable.toggleRowSelection(this.tableData.find(item => {
+                        return row.recordId === item.recordId
+                    }), true)
+                })
+            },
+            methods: {
+                fetchData() {
+                    this.list = this.tableData.slice((this.currentPage-1)*this.pageSize, this.currentPage*this.pageSize);
+                },
+                handleSizeChange(val) {
+                    this.pageSize = val;
+                    this.fetchData();
+                },
+                handleCurrentChange(val) {
+                    this.selectTableList = [];
+                    this.selectTableObject[this.currentPage - 1] = this.multipleSelection; // 记录分页前所勾选的 table list
+                    this.currentPage = val;
+                    for (let key in this.selectTableObject) {
+                        for (let i = 0;i < this.selectTableObject[key].length;i++) {
+                            if (typeof this.selectTableObject[key][i] === 'object') {
+                                this.selectTableList.push(this.selectTableObject[key][i]);
+                            }
+                        }
+                    }
+                    this.fetchData();
+                },
+                handleSelectionChange(val) {
+                    this.multipleSelection = val;
+                }
+            }
+        })
+    </script>
+</body>
+</html>

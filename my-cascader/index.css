@@ -1,0 +1,193 @@
+div {
+    box-sizing: border-box;
+}
+#app {
+    width: 100%;
+    /* height: 100vh; */
+    height: calc(100vh - 50px);
+    background-color: #f5f7fa;
+}
+[v-cloak] {
+    display: none;
+}
+.my-wrapper {
+    position: relative;
+}
+.my-wrapper div::-webkit-scrollbar {
+    display: none;
+}
+.my-wrapper .my-selected {
+    display: flex;
+    align-items: center;     /* 垂直居中 */
+    justify-content: center; /* 水平居中 */
+    width: 402px;
+    height: 48px;
+    border: 1px solid #DCDFE6;
+    background: #fff;
+}
+.my-wrapper .my-selected .selected {
+    width: 340px;
+    height: 30px;
+    line-height: 30px;
+    overflow: hidden;
+}
+.my-wrapper .my-selected .icon {
+    display: flex;
+    align-items: center;     /* 垂直居中 */
+    justify-content: center; /* 水平居中 */
+    flex: 1;
+    height: 48px;
+    color: #C0C4CC;
+    cursor: pointer;
+}
+.my-wrapper .my-selected .selected .selected-all {
+    display: -webkit-box;
+    padding: 0 10px;
+    overflow-x: scroll;
+}
+.my-wrapper .my-selected .selected .text {
+    padding: 0 20px;
+    color: #606266;
+}
+.my-wrapper .my-selected .selected .selected-all .selected-every {
+    display: flex;
+    align-items: center;     /* 垂直居中 */
+    justify-content: center; /* 水平居中 */
+    background: #f0f2f5;
+    margin: 0 5px;
+    padding: 0 5px;
+    border-radius: 5px;
+    color: #909399;
+}
+.my-wrapper .my-selected .selected .selected-all .selected-every .name {
+    font-size: 14px;
+    padding-right: 5px;
+}
+.my-wrapper .my-selected .selected .selected-all .selected-every .delect {
+    cursor: pointer;
+}
+
+.my-wrapper .my-box {
+    position: absolute;
+    /* width: 610px; */
+    top: 48px;
+}
+.my-wrapper .my-box .my-cascader {
+    height: 252px;
+    font-size: 14px;
+    overflow-y: scroll;
+}
+.my-wrapper .my-box .my-cascader .content {
+    display: flex;
+    align-items: center;     /* 垂直居中 */
+    justify-content: space-between;
+    width: 200px;
+    padding: 10px 20px;
+    background: #fff;
+    cursor: pointer;
+}
+.my-wrapper .my-box .my-cascader .content .first-name span {
+    display: inline-block;
+    width: 90px;
+    margin-right: 10px;
+}
+.my-wrapper .my-box .my-cascader .content .first-is-next {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 200px;
+    /* width: 405px; */
+    border-left: 1px solid #eee;
+}
+.my-wrapper .my-box .my-cascader .content .first-is-next-active {
+    display: block;
+}
+.my-wrapper .my-box .my-cascader .content .first-is-next .next {
+    width: 200px; 
+    height: 252px; 
+    overflow-y: scroll; 
+    background: #fff;
+}
+.my-wrapper .my-box .my-cascader .content .first-is-next .next .second-content {
+    display: flex;
+    align-items: center;     /* 垂直居中 */
+    justify-content: space-between;
+    width: 200px;
+    padding: 10px 20px;
+    background: #fff;
+    cursor: pointer;
+}
+.my-wrapper .my-box .my-cascader .content .first-is-next .next .second-content .second-name span {
+    display: inline-block;
+    width: 90px;
+    margin-right: 10px;
+}
+.my-wrapper .my-box .my-cascader .content .first-is-next .next .second-content .second-is-next {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 200px;
+    height: 252px;
+    overflow-y: scroll;
+    background: #fff;
+    border-left: 1px solid #eee;
+}
+.my-wrapper .my-box .my-cascader .content .first-is-next .next .second-content .second-is-next .third-content {
+    display: flex;
+    align-items: center;     /* 垂直居中 */
+    justify-content: space-between;
+    width: 200px;
+    padding: 10px 20px;
+    background: #fff;
+    cursor: pointer;
+}
+.my-wrapper .my-box .my-cascader .content .first-is-next .next .second-content .second-is-next .third-content .third-name span {
+    display: inline-block;
+    width: 90px;
+    margin-right: 10px;
+}
+.my-wrapper .my-box .my-cascader .content .first-is-next .next .second-content .second-is-next .third-content:hover {
+    background: #E6EDF5;
+}
+
+.my-wrapper .my-box .my-cascader .content .first-is-next .next .second-content:hover {
+    background: #E6EDF5;
+}
+.my-wrapper .my-box .my-cascader .content .first-is-next .next .second-content:hover .second-is-next {
+    display: block;
+}
+
+.my-wrapper .my-box .my-cascader .content:hover {
+    background: #E6EDF5;
+}
+.my-wrapper .my-box .my-cascader .content:hover .first-is-next {
+    display: block;
+}
+
+.my-wrapper .my-search-box {
+    position: absolute;
+    top: 48px;
+}
+.my-wrapper .my-search-box .my-search-input .my-autocomplete {
+    width: 402px;
+}
+.my-wrapper .my-search-box .my-search-input .my-autocomplete .el-input__inner {
+    padding: 0 22px !important;
+}
+.my-wrapper .my-search-box .my-search-content .search-content {
+    display: flex;
+    align-items: center;     /* 垂直居中 */
+    justify-content: space-between;
+    width: 402px;
+    padding: 10px 22px;
+    background: #fff;
+    font-size: 14px;
+    color: #606266;
+    cursor: pointer;
+}
+.my-wrapper .my-search-box .my-search-content .search-content:hover {
+    background: #E6EDF5;
+}
+.el-autocomplete-suggestion {
+    display: none;
+}

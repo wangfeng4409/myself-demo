@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+</head>
+<body>
+    <style>
+        #app .select {
+            margin-top: 10px;
+        }
+        #app .add {
+            margin-top: 20px;
+        }
+    </style>
+    <div id="app">
+        <div class="select" v-for="(i,index) in num">
+            <el-select v-model="values[index]" placeholder="请选择" @change="changeSelect">
+                <el-option
+                    v-for="item in options"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                    :disabled="item.disabled">
+                </el-option>
+            </el-select>
+            <el-button type="danger" @click="deleteSelect(index)" :disabled="delectDisabled">删除</el-button>
+        </div>
+        <div class="add">
+            <el-button type="primary" @click="addSelect" :disabled="disabled">添加</el-button>
+        </div>
+    </div>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    options: [{
+                            value: '选项1',
+                            label: '黄金糕',
+                            disabled: false
+                        }, {
+                            value: '选项2',
+                            label: '双皮奶',
+                            disabled: false
+                        }, {
+                            value: '选项3',
+                            label: '蚵仔煎',
+                            disabled: false
+                        }, {
+                            value: '选项4',
+                            label: '龙须面',
+                            disabled: false
+                        }, {
+                            value: '选项5',
+                            label: '北京烤鸭',
+                            disabled: false
+                        }],
+                        num: 1,
+                    values: {
+                        0: ''
+                    },
+                    disabled: false,
+                    delectDisabled: true
+                }
+            },
+            methods: {
+                // 添加select
+                addSelect () {
+                    if (this.num < this.options.length) {
+                        this.num++
+                        this.delectDisabled = false
+                        if (this.num === this.options.length) {
+                            this.disabled = true
+                        }
+                    }
+                },
+                // 改变select
+                changeSelect() {
+                    // 将所有的option的disabled都置为false,变成可选的情况
+                    for (let j = 0; j < this.options.length; j++) {
+                        this.options[j].disabled = false
+                    }
+
+                    // 遍历所勾选的select,勾选过的option置为不可选的状态
+                    for (let i in this.values) {
+                        for (let j = 0; j < this.options.length; j++) {
+                            if (this.options[j].value === this.values[i]) {
+                                this.options[j].disabled = true
+                            }
+                        }
+                    }
+                },
+                // 删除select
+                deleteSelect(index) {
+                    let obj = {};// 为了重新定义 this.values 中的属性值和属性名
+                    this.num--
+                    if (this.num === 1) {
+                        this.delectDisabled = true
+                    } else {
+                        this.delectDisabled = false
+                    }
+                    if (this.num < this.options.length) {
+                        this.disabled = false
+                    }
+
+                    // 将所删除的option置为可选的状态
+                    for (let j = 0; j < this.options.length; j++) {
+                        if (this.options[j].value === this.values[index]) {
+                            this.options[j].disabled = false
+                        }
+                    }
+
+                    // 删除this.values中之前所选的option
+                    delete this.values[index];
+
+                    // 读取剩余this.values中的值
+                    let valueArr = Object.values(this.values)
+
+                    // 将删除所剩下的option变成this.values = {0: '', 1: ''}的形式
+                    for (let i = 0; i < valueArr.length; i++) {
+                        obj[i] = valueArr[i]
+                    }
+                    this.values = obj
+                }
+            }
+        })
+    </script>
+</body>
+</html>

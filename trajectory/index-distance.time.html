@@ -1,0 +1,399 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+    <title>轨迹回放</title>
+    <link rel="stylesheet" href="https://a.amap.com/jsapi_demos/static/demo-center/css/demo-center.css"/>
+    <style>
+        html, body, #container {
+            height: 100%;
+            width: 100%;
+        }
+        .panel-box {
+            display: none;
+        }
+        .input-card {
+            display: none;
+            width: 46.5rem;
+            right: 0rem;
+            left: 1rem;
+            bottom: 2rem;
+            background: rgba(255, 255, 255, 0.7);
+        }
+        .input-card .box {
+            display: flex;
+            position: relative;
+            margin-right: 1.2rem;
+            width: 10rem;
+            height: 2.5rem;
+            padding: .25rem .5rem;
+            line-height: 2;
+            border-radius: 15px;
+            color: #ffffff;
+        }
+        .input-card .box .icon {
+            width: 24px;
+            height: 24px;
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+        }
+        .input-card .box .text {
+            margin-left: 5px;
+        }
+        .input-card .box:last-child{
+            margin-right: 0;
+        }
+        .input-card .legend {
+            display: flex;
+            position: relative;
+            margin-right: 1.2rem;
+            width: 10rem;
+            height: 2.5rem;
+            padding: .25rem .5rem;
+            font-size: 16px;
+            line-height: 2;
+            border-radius: 15px;
+            color: #738299;
+            cursor: pointer;
+        }
+        .input-card .legend .icon {
+            width: 8px;
+            height: 14px;
+            margin-left: 0.25rem;
+            margin-top: 0.75rem;
+            background-image: url(./icon/left.png);
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+        }
+        .show-input-card {
+            display: none;
+            position: fixed;
+            width: 10rem;
+            right: 0rem;
+            left: 1rem;
+            bottom: 2rem;
+            background: rgba(255, 255, 255, 0.7);
+            border-width: 0;
+            border-radius: 0.4rem;
+            box-shadow: 0 2px 6px 0 rgba(114, 124, 245, .5);
+            background-color: #fff;
+            background-clip: border-box;
+            padding: 0rem 1.25rem 0.75rem;
+        }
+        .show-legend {
+            display: flex;
+            position: relative;
+            margin-right: 1.2rem;
+            width: 8rem;
+            height: 2.5rem;
+            padding: .25rem;
+            font-size: 16px;
+            line-height: 2;
+            border-radius: 15px;
+            color: #738299;
+            cursor: pointer;
+        }
+        .show-legend .text {
+            color: #ff788e;
+        }
+        .show-legend .icon {
+            width: 8px;
+            height: 14px;
+            margin-left: 0.25rem;
+            margin-top: 0.75rem;
+            background-image: url(./icon/right.png);
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+        }
+        .amap-marker::after {
+            display: block;
+            content: '';
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            left: 12px;
+            bottom: -56px;
+            border: 3px solid rgba(97,164,255,1);
+            border-radius: 50%;
+            background: #fff;
+        }
+        .amap-marker-label {
+            /* visibility: hidden; */
+            background-color: transparent;
+            top: -26px !important;
+            padding: 0px;
+            border: 0px;
+        }
+        .amap-marker-label .info_title {
+            position: relative;
+            /* background-color: #ff788e; */
+            color: #fff;
+            padding: 5px;
+            border-radius: 15px;
+        }
+        .amap-marker-label .info_title .show_distance {
+            position: absolute;
+            top: -29px;
+            left: -22px;
+            color: #000;
+        }
+        .amap-marker-label .info_title span {
+            display: inline-block;
+            padding: 2px 7px;
+            color: #fff;
+            margin-right: 3px;
+            border-top-left-radius: 50%;
+            border-top-right-radius: 20%;
+            border-bottom-right-radius: 20%;
+            border-bottom-left-radius: 50%;
+        }
+        .amap-icon {
+            width: 36px;
+            height: 36px;
+        }
+        .amap-icon img {
+            width: 100%;
+            height: 100%;
+        }
+        #show_distance_time {
+            display: none;
+            position: absolute;
+            top: 0;
+            padding: 5px 10px;
+            border-radius: 8px;
+            background: #FF445E;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+<div id="container"></div>
+<div class="input-card" id="input-card">
+    <div class="input-item">
+        <div class="box" style="background: rgba(255,151,71,1);">
+            <div class="icon" style="background-image: url(./icon/attendance.png);"></div>
+            <div class="text">上班打卡地点</div>
+        </div>
+        <div class="box" style="background: rgba(97,164,255,1)">
+            <div class="icon" style="background-image: url(./icon/store.png);"></div>
+            <div class="text">终端门店</div>
+        </div>
+        <div class="box" style="background: rgba(97,164,255,1)">
+            <div class="icon" style="background-image: url(./icon/student.png);"></div>
+            <div class="text">学生代理</div>
+        </div>
+        <div class="box" style="background: rgba(97,164,255,1)">
+            <div class="icon" style="background-image: url(./icon/tetong.png);"></div>
+            <div class="text">特通</div>
+        </div>
+    </div>
+    <div class="input-item">
+        <div class="box" style="background: rgba(155,194,39,1)">
+            <div class="icon" style="background-image: url(./icon/attendance.png);"></div>
+            <div class="text">下班打卡地点</div>
+        </div>
+        <div class="box" style="background: rgba(255,120,142,1)">
+            <div class="icon" style="background-image: url(./icon/store.png);"></div>
+            <div class="text">终端开户成功</div>
+        </div>
+        <div class="box" style="background: rgba(255,120,142,1)">
+            <div class="icon" style="background-image: url(./icon/student.png);"></div>
+            <div class="text">学代开户成功</div>
+        </div>
+        <div class="box" style="background: rgba(255,120,142,1)">
+            <div class="icon" style="background-image: url(./icon/tetong.png);"></div>
+            <div class="text">特通开户成功</div>
+        </div>
+    </div>
+    <div class="input-item">
+        <div class="box" style="visibility: hidden;">上班打卡地点</div>
+        <div class="box" style="background: rgba(115,130,153,1)">
+            <div class="icon" style="background-image: url(./icon/store.png);"></div>
+            <div class="text">终端开户失败</div>
+        </div>
+        <div class="box" style="background: rgba(115,130,153,1)">
+            <div class="icon" style="background-image: url(./icon/student.png);"></div>
+            <div class="text">学代开户失败</div>
+        </div>
+        <div class="box" style="background: rgba(115,130,153,1)">
+            <div class="icon" style="background-image: url(./icon/tetong.png);"></div>
+            <div class="text">特通开户失败</div>
+        </div>
+    </div>
+    <div class="input-item">
+        <div class="box" style="visibility: hidden;">下班打卡地点</div>
+        <div class="box" style="background: rgba(97,164,255,1)">
+            <div class="icon" style="background-image: url(./icon/no_abnormal.png);"></div>
+            <div class="text">异常拜访</div>
+        </div>
+        <div class="box" style="background: rgba(97,164,255,1)">
+            <div class="icon" style="background-image: url(./icon/order.png);"></div>
+            <div class="text">客户下单</div>
+        </div>
+    </div>
+    <div class="input-item">
+        <div class="legend" onclick="hideLegend()">
+            <div class="text">隐藏图例</div>
+            <div class="icon"></div>
+        </div>
+    </div>
+</div>
+<div class="show-input-card" id="show-input-card" onclick="showLegend()">
+    <div class="show-legend">
+        <div class="text">显示图例</div>
+        <div class="icon"></div>
+    </div>
+</div>
+<div id="show_distance_time"></div>
+<script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+<script type="text/javascript" src="https://webapi.amap.com/maps?v=1.4.15"></script>
+<script src="https://webapi.amap.com/ui/1.0/main.js?v=1.0.11"></script>
+<script>
+    let flag = true;
+    let map;
+    let markerList = [];
+    let polylineList = [];
+    let hoverPolylineList = [];// 接收鼠标 Hover 轨迹上 得到所描述轨迹的数组
+    window.parent.postMessage({parent: '111'}, '*');
+    window.addEventListener("message", function(e){
+        if (!e.data.loc) {
+            var lineArrs = e.data.data;
+            var markers = e.data.mark;
+            if (flag) {
+                map = new AMap.Map("container", {
+                    resizeEnable: true,
+                    expandZoomRange: true,
+                    center: lineArrs[0]?lineArrs[0][0]:markers[0].location,
+                    zoom: 17,
+                    zooms: [3,20]
+                });
+            } else {
+                map.remove(markerList)
+                map.remove(polylineList)
+                markerList = [];
+                polylineList = [];
+            }
+            markers.forEach(function(marker) {
+                markerList.push(new AMap.Marker({
+                    map: map,
+                    label: {
+                        // 第三版需求
+                        content: marker.show_color==1?"<div class='info_title' id="+marker.id+" style='background: rgba(255,151,71,1)'>"+ marker.title +"</div>"
+                                :marker.show_color==2?"<div class='info_title' id="+marker.id+" style='background: rgba(155,194,39,1)'>"+ marker.title +"</div>"
+                                :marker.show_color==3?"<div class='info_title' id="+marker.id+" style='background: rgba(255,120,142,1)'><span class='special-span' style='background: rgba(236,84,109,1);"+marker.show_order+"'>"+marker.num+"</span>"+ marker.title +"</div>"
+                                :marker.show_color==4?"<div class='info_title' id="+marker.id+" style='background: rgba(115,130,153,1)'><span class='special-span' style='background: rgba(80,97,125,1);"+marker.show_order+"'>"+marker.num+"</span>"+ marker.title +"</div>"
+                                :marker.show_color==5?"<div class='info_title' id="+marker.id+" style='background: rgba(97,164,255,1)'><span class='special-span' style='background: rgba(57,130,236,1);"+marker.show_order+"'>"+marker.num+"</span>"+ marker.title +"</div>"
+                                :marker.show_color==6?"<div class='info_title' id="+marker.id+" style='background: rgba(255,0,0,1)'><span class='special-span' style='background: rgba(255,57,83,1);"+marker.show_order+"'>"+marker.num+"</span>"+ marker.title +"</div>"
+                                :marker.show_color==7?"<div class='info_title' id="+marker.id+" style='background: rgba(252,170,0,1)'><span class='special-span' style='background: rgba(255,151,71,1);"+marker.show_order+"'>"+marker.num+"</span>"+ marker.title +"</div>":'',
+                        direction: 'top',
+                    },
+                    title: marker.title,
+                    icon: new AMap.Icon({
+                        image: marker.icon,
+                        size: new AMap.Size(45, 42),  //图标大小
+                    }),
+                    position: marker.location,
+                    offset: new AMap.Pixel(-18,-42),
+                }))
+            })
+            lineArrs.forEach(function(lineArr){
+                // console.log(AMap.GeometryUtil.distanceOfLine(lineArr))
+                let distance = parseInt(AMap.GeometryUtil.distanceOfLine(lineArr)) > 1000 ? '' + (parseFloat(parseInt(AMap.GeometryUtil.distanceOfLine(lineArr))/1000).toFixed(1)) + 'km' : parseFloat(AMap.GeometryUtil.distanceOfLine(lineArr)).toFixed(2) + 'm';
+                polylineList.push(new AMap.Polyline({
+                    map: map,
+                    path: lineArr,
+                    showDir: true,
+                    strokeColor: "#28F",  //线颜色
+                    strokeOpacity: 1,     //线透明度
+                    strokeWeight: 6,      //线宽
+                    strokeStyle: "solid",  //线样式
+                    extData: distance+'\xa0\xa0\xa0'+'2小时12分50秒'
+                }))
+            })
+
+            if (flag) {
+                map.setFitView();
+                flag = false;
+            }
+
+            // map.plugin(["AMap.ToolBar"], function() {
+            //     map.addControl(new AMap.ToolBar({liteStyle:true}));
+            // })
+            // map.plugin(["AMap.Scale"], function() {
+            //     map.addControl(new AMap.Scale());
+            // })
+
+            AMapUI.loadUI(['control/BasicControl'], function(BasicControl) {
+
+                var zoomCtrl = new BasicControl.Zoom({
+                    position: 'br',
+                    showZoomNum: true
+                });
+
+                map.addControl(zoomCtrl);
+            });
+
+            map.on('complete', function() {
+                document.getElementById('show-input-card').style.display = 'block';
+            })
+
+            polylineList.forEach(function (polyline) {
+                polyline.on('click', function (e) {
+                    let show_distance_time = this.getExtData()
+                    $("#show_distance_time").css({'display': 'block','top':e.pixel.y+20+'px','left':e.pixel.x+'px'}).html(show_distance_time)
+                    hoverPolylineList.push(new AMap.Polyline({
+                        map: map,
+                        path: polyline.getPath(),
+                        showDir: true,
+                        strokeColor: "#ff4500",  //线颜色
+                        strokeOpacity: 1,     //线透明度
+                        strokeWeight: 6,      //线宽
+                        strokeStyle: "solid",  //线样式
+                    }))
+                })
+            })
+            map.on('click', function() {
+                $("#show_distance_time").css({'display':'none'})
+                map.remove(hoverPolylineList)
+                hoverPolylineList = []
+            })
+
+
+            markerList.forEach(function (marker) {
+                marker.on('click', function (e) {
+                    if (e.target.A.Le.labelDom.firstChild.getAttribute('id') !== 'wf') {
+                        // console.log(e.target.A.Le.labelDom.firstChild.getAttribute('id'))
+                        window.parent.postMessage({parent: '222',id: e.target.A.Le.labelDom.firstChild.getAttribute('id')}, '*');
+                    }
+                })
+                marker.on('mouseover', function (e) {
+                    e.target.A.Le.labelDom.parentNode.style.zIndex = '101'
+                })
+                marker.on('mouseout', function (e) {
+                    e.target.A.Le.labelDom.parentNode.style.zIndex = '100'
+                })
+            })
+        }
+
+        if (e.data.loc === 1) {
+            map.destroy();
+        } else if (e.data.loc === 2) {
+            $('.special-span').css('display', 'inline-block')
+        } else if (e.data.loc === 3) {
+            $('.special-span').css('display', 'none')
+        }
+
+    })
+    function showLegend() {
+        document.getElementById('show-input-card').style.display = 'none';
+        document.getElementById('input-card').style.display = 'block';
+    }
+    function hideLegend() {
+        document.getElementById('input-card').style.display = 'none';
+        document.getElementById('show-input-card').style.display = 'block';
+    }
+</script>
+</body>
+</html>

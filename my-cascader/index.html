@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>wangfeng_cascader</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <link rel="stylesheet" href="./index.css">
+</head>
+<body>
+    <div id="app">
+        <div class="my-wrapper" v-cloak>
+            <div class="my-selected" @click.stop.prevent="handleArrowDown">
+                <div class="selected">
+                    <div class="selected-all" v-if="selectedList.length > 0">
+                        <div class="selected-every" v-for="(item, index) in selectedList" :key="index">
+                            <div class="name">{{ item.label }}</div>
+                            <div class="delect" @click="delectSelect(item.value, index, item.areaIndex, item.companyIndex, item.branchIndex)"><i class="el-icon-error"></i></div>
+                        </div>
+                    </div>
+                    <div class="text" v-else>请选择</div>
+                </div>
+                <div class="icon" @click.stop.prevent="handleArrowDown">
+                    <i :class="!selectBoxFlag ? 'el-icon-arrow-down' : 'el-icon-arrow-up'" :style="selectBoxFlag?'color: #61a3ff':''"></i>
+                </div>
+                <div class="icon" @click.stop.prevent="handleSearch">
+                    <i class="el-icon-search" :style="searchBoxFlag?'color: #61a3ff':''"></i>
+                </div>
+            </div>
+    
+            <div class="my-box" v-show="selectBoxFlag">
+                <div class="my-cascader">
+                    <div class="content" v-for="(area, areaIndex) in options" :key="areaIndex" @mouseover.stop.prevent="handleMouserOver(area)" @click.stop.prevent="handleArea(area.index++, area.label, area.value, areaIndex)">
+                        <div class="first-name">
+                            <span :style="parseInt(area.index)%2==1?'color: #61a3ff':''">{{ area.label }}</span>
+                            <i class="el-icon-check" :style="parseInt(area.index)%2==1?'visibility: visible; color: #61a3ff':'visibility: hidden;'"></i>
+                        </div>
+                        <div class="icon" v-if="area.children.length > 0"><i class="el-icon-arrow-right"></i></div>
+                        <div class="first-is-next" :class="area.active?'first-is-next-active':''" v-if="area.children.length > 0" @click.stop.prevent="">
+                            <div class="next" @click.stop.prevent="">
+                                <div class="second-content" v-for="(company, companyIndex) in area.children" :key="companyIndex" @click.stop.prevent="handleCompany(company.index++, company.label, company.value, areaIndex, companyIndex)">
+                                    <div class="second-name">
+                                        <span :style="parseInt(company.index)%2==1?'color: #61a3ff':''">{{ company.label }}</span>
+                                        <i class="el-icon-check" :style="parseInt(company.index)%2==1?'visibility: visible; color: #61a3ff':'visibility: hidden;'"></i>
+                                    </div>
+                                    <div class="icon" v-if="company.children.length > 0"><i class="el-icon-arrow-right"></i></div>
+                                    <div class="second-is-next" v-if="company.children.length > 0" @click.stop.prevent="">
+                                        <div class="third-content" v-for="(branch, branchIndex) in company.children" :key="branchIndex" @click.stop.prevent="handleBranch(branch.index++, branch.label, branch.value, areaIndex, companyIndex, branchIndex)">
+                                            <div class="third-name">
+                                                <span :style="parseInt(branch.index)%2==1?'color: #61a3ff':''">{{ branch.label }}</span>
+                                                <i class="el-icon-check" :style="parseInt(branch.index)%2==1?'visibility: visible; color: #61a3ff':'visibility: hidden;'"></i>
+                                            </div>
+                                            <div class="icon"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    
+            <div class="my-search-box" v-show="searchBoxFlag">
+                <div class="my-search-input">
+                    <el-autocomplete class="my-autocomplete" v-model="searchData" :fetch-suggestions="querySearchAsync" placeholder="试试搜索北京"  :popper-append-to-body="false" size="small"></el-autocomplete>
+                </div>
+                <div class="my-search-content">
+                    <div class="search-content" v-for="(item, index) in showSearchList" :key="index" @click.stop.prevent="handleSearchContent(item.index++, item.label, item.value, item.areaIndex, item.companyIndex, item.branchIndex)">
+                        <div class="name" :style="parseInt(item.index)%2==1?'color: #61a3ff':''">{{ item.label }}</div>
+                        <div class="icon"><i class="el-icon-check" :style="parseInt(item.index)%2==1?'visibility: visible; color: #61a3ff':'visibility: hidden;'"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="./index.js"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    options: [],
+                    selectedList: [],
+                    selectBoxFlag: false,
+                    searchBoxFlag: false,
+                    searchData: '',
+                    searchList: [],
+                    showSearchList: []
+                }
+            },
+            mounted() {
+                cityStr.forEach((itemArea, indexArea) => {
+                    this.options.push({ value: itemArea.name, label: itemArea.name, index: 0, children: [] });
+                    itemArea.city.forEach((itemCompany, indexCompany) => {
+                        this.options[indexArea].children.push({ value: itemCompany.name, label: itemCompany.name, index: 0, children: [] })
+                        itemCompany.area.forEach((itemBranch, indexBranch) => {
+                            this.options[indexArea].children[indexCompany].children.push({ value: itemBranch, label: itemBranch, index: 0, })
+                        })
+                    })
+                })
+                this.options.forEach((itemArea, indexArea) => {
+                    itemArea.children.forEach((itemCompany, indexCompany) => {
+                        if (itemCompany.children.length > 0) {
+                            itemCompany.children.unshift({ value: '全部', label: '全部', index: 0 })
+                        }
+                    })
+                })
+                this.options.forEach((itemArea, indexArea) => {
+                    if (itemArea.children.length > 0) {
+                        itemArea.children.unshift({ value: '全部', label: '全部', index: 0, children: [] })
+                    }
+                })
+                this.options.unshift({ value: '全部', label: '全部', index: 0, children: [] });
+            },
+            methods: {
+                // 数组去重
+                unique(arr) {
+                    for (let i = 0, len = arr.length; i < len; i++) {
+                        for (let j = i+1; j < len; j++) {
+                            if (arr[i].value == arr[j].value) {
+                                arr.splice(j,1);
+                                j--;
+                                len--;
+                            }
+                        }
+                    }
+                },
+                // 选择大区时的处理事件, index%2==0 代表选中转态
+                handleArea(index, label, value, areaIndex) {
+                    if (label == '全部') {
+                        if (index%2==0) {// 全部选中的时候
+                            this.options.forEach((area, areaIndex) => {
+                                if (area.label != '全部') {
+                                    area.index = 1;
+                                    this.selectedList.push({ value: area.value, label: area.label, areaIndex: areaIndex, companyIndex: '', branchIndex: '' });// push该元素所处第一级数组的位置
+                                }
+                            })
+                            this.unique(this.selectedList);// 进行对象数组去重
+                        } else {// 取消全选
+                            this.options.forEach((area, areaIndex) => {
+                                area.label != '全部' ? area.index = 0 : '';
+                                if (area.label != '全部') {
+                                    // 截取符合条件的元素所处数组this.options的位置
+                                    let inde = this.selectedList.findIndex(item => value == item.value && areaIndex === item.areaIndex && '' === item.companyIndex && '' === item.branchIndex);
+                                    inde >= 0 ? this.selectedList.splice(inde, 1) : '';
+                                }
+                            })
+                        }
+                    } else {
+                        if (index%2==0) {// 非全部选中的时候
+                            // 反全选 开始
+                            let areaAllFlag = true;
+                            for (let area of this.options) {
+                                if ((area.label != '全部') && (area.index%2 == 0)) {
+                                    areaAllFlag = false;// 只要有一个元素没选中 就置为false, 跳出循环
+                                    break;
+                                }
+                            }
+                            if (areaAllFlag) {// 所有的元素都选择的情况下 全选被选中
+                                for (let area of this.options) {
+                                    area.label == '全部' ? area.index = 1 : '';
+                                }
+                            }
+                            // 反全选 结束
+                            this.selectedList.push({ value: value, label: label, areaIndex: areaIndex, companyIndex: '', branchIndex: '' });
+                        } else {// 非全部取消选中的时候
+                            for (let area of this.options) {
+                                area.label == '全部' ? area.index = 0 : '';
+                            }
+                            let inde = this.selectedList.findIndex(item => value == item.value && areaIndex === item.areaIndex && '' === item.companyIndex && '' === item.branchIndex);
+                            this.selectedList.splice(inde, 1);
+                        }
+                    }
+                    console.log(this.selectedList, '大区');
+                },
+                // 选择分公司时的处理事件
+                handleCompany(index, label, value, areaIndex, companyIndex) {
+                    if (label == '全部') {
+                        if (index%2==0) {// 全部选中的时候
+                            this.options[areaIndex].children.forEach((company, companyIndex) => {
+                                if (company.label != '全部') {
+                                    company.index = 1;
+                                    this.selectedList.push({ value: company.value, label: company.label, areaIndex: areaIndex, companyIndex: companyIndex, branchIndex: '' });
+                                }
+                            })
+                            this.unique(this.selectedList);
+                        } else {
+                            this.options[areaIndex].children.forEach((company, companyIndex) => {
+                                company.label != '全部' ? company.index = 0 : '';
+                                if (company.label != '全部') {
+                                    let inde = this.selectedList.findIndex(item => value == item.value && areaIndex === areaIndex && companyIndex === item.companyIndex && '' === item.branchIndex);
+                                    inde >= 0 ? this.selectedList.splice(inde, 1) : '';
+                                }
+                            })
+                        }
+                    } else {
+                        if (index%2==0) {// 非全部选中的时候
+                            // 反全选 开始
+                            let companyAllFlag = true;
+                            for (let company of this.options[areaIndex].children) {
+                                if ((company.label != '全部') && (company.index%2 == 0)) {
+                                    companyAllFlag = false;// 只要有一个元素没选中 就置为false, 跳出循环
+                                    break;
+                                }
+                            }
+                            if (companyAllFlag) {// 所有的元素都选择的情况下 全选被选中
+                                for (let company of this.options[areaIndex].children) {
+                                    company.label == '全部' ? company.index = 1 : '';
+                                }
+                            }
+                            // 反全选 结束
+                            this.selectedList.push({ value: value, label: label, areaIndex: areaIndex, companyIndex: companyIndex, branchIndex: '' });
+                        } else {// 非全部取消选中的时候
+                            for (let company of this.options[areaIndex].children) {
+                                company.label == '全部' ? company.index = 0 : '';
+                            }
+                            let inde = this.selectedList.findIndex(item => value == item.value && areaIndex === areaIndex && companyIndex === item.companyIndex && '' === item.branchIndex);
+                            this.selectedList.splice(inde, 1);
+                        }
+                    }
+                    console.log(this.selectedList, '分公司')
+                },
+                // 选择营业所时的处理事件
+                handleBranch(index, label, value, areaIndex, companyIndex, branchIndex) {
+                    if (label == '全部') {
+                        if (index%2==0) {// 全部选中的时候
+                            this.options[areaIndex].children[companyIndex].children.forEach((branch, branchIndex) => {
+                                if (branch.label != '全部') {
+                                    branch.index = 1;
+                                    this.selectedList.push({ value: branch.value, label: branch.label, areaIndex: areaIndex, companyIndex: companyIndex, branchIndex: branchIndex });// push该元素所处第一级数组的位置
+                                }
+                            })
+                            this.unique(this.selectedList);
+                        } else {
+                            this.options[areaIndex].children[companyIndex].children.forEach((branch, branchIndex) => {
+                                branch.label != '全部' ? branch.index = 0 : '';
+                                if (branch.label != '全部') {
+                                    let inde = this.selectedList.findIndex(item => value == item.value && areaIndex === areaIndex && companyIndex === companyIndex && branchIndex === item.branchIndex);
+                                    inde >= 0 ? this.selectedList.splice(inde, 1) : '';
+                                }
+                            })
+                        }
+                    } else {
+                        if (index%2==0) {// 非全部选中的时候
+                            // 反全选 开始
+                            let branchAllFlag = true;
+                            for (let branch of this.options[areaIndex].children[companyIndex].children) {
+                                if ((branch.label != '全部') && (branch.index%2 == 0)) {
+                                    branchAllFlag = false;// 只要有一个元素没选中 就置为false, 跳出循环
+                                    break;
+                                }
+                            }
+                            if (branchAllFlag) {// 所有的元素都选择的情况下 全选被选中
+                                for (let branch of this.options[areaIndex].children[companyIndex].children) {
+                                    branch.label == '全部' ? branch.index = 1 : '';
+                                }
+                            }
+                            // 反全选 结束
+                            this.selectedList.push({ value: value, label: label, areaIndex: areaIndex, companyIndex: companyIndex, branchIndex: branchIndex });
+                        } else {// 非全部取消选中的时候
+                            for (let branch of this.options[areaIndex].children[companyIndex].children) {
+                                branch.label == '全部' ? branch.index = 0 : '';
+                            }
+                            let inde = this.selectedList.findIndex(item => value == item.value && areaIndex === item.areaIndex && companyIndex === item.companyIndex && branchIndex === item.branchIndex);
+                            this.selectedList.splice(inde, 1);
+                        }
+                    }
+                    console.log(this.selectedList, '营业所');
+                },
+                // 删除选中的元素
+                delectSelect(value, inde, areaIndex, companyIndex, branchIndex) {
+                    if (branchIndex !== '') {
+                        for (let branch of this.options[areaIndex].children[companyIndex].children) {
+                            branch.label == '全部' ? branch.index = 0 : '';
+                            branch.value == value ? branch.index = 0 : '';
+                        }
+                    } else if (companyIndex !== '') {
+                        for (let company of this.options[areaIndex].children) {
+                            company.label == '全部' ? company.index = 0 : '';
+                            company.value == value ? company.index = 0 : '';
+                        }
+                    } else {
+                        for (let area of this.options) {
+                            area.label == '全部' ? area.index = 0 : '';
+                            area.value == value ? area.index = 0 : '';
+                        }
+                    }
+                    this.selectedList.splice(inde, 1);
+                },
+                // 是否点击向下的箭头
+                handleFatherArrowDown() {// 点击父级
+                    this.searchBoxFlag = false;
+                    this.selectBoxFlag = !this.selectBoxFlag;
+                },
+                handleArrowDown() {// 点击自身
+                    this.searchBoxFlag = false;
+                    this.selectBoxFlag = !this.selectBoxFlag;
+                },
+                // 搜索
+                handleSearch() {
+                    this.selectBoxFlag = false;
+                    this.searchBoxFlag = !this.searchBoxFlag;
+                },
+                // 模糊搜索
+                querySearchAsync(queryString, cb) {
+                    this.searchList = [];
+                    this.options.forEach((area, areaIndex) => {
+                        area.areaIndex = areaIndex;
+                        area.companyIndex = '';
+                        area.branchIndex = '';
+                        area.label != '全部' ? this.searchList.push(area) : '';
+                        area.children.forEach((company, companyIndex) => {
+                            company.areaIndex = areaIndex;
+                            company.companyIndex = companyIndex;
+                            company.branchIndex = '';
+                            company.label != '全部' ? this.searchList.push(company) : '';
+                            company.children.forEach((branch, branchIndex) => {
+                                branch.areaIndex = areaIndex;
+                                branch.companyIndex = companyIndex;
+                                branch.branchIndex = branchIndex;
+                                branch.label != '全部' ? this.searchList.push(branch) : '';
+                            })
+                        })
+                    })
+                    this.showSearchList = queryString ? this.searchList.filter(this.createStateFilter(queryString)) : [];
+                },
+                // 模糊搜索
+                createStateFilter(queryString) {
+                    return (state) => {
+                        return (state.label.toLowerCase().indexOf(queryString.toLowerCase()) == 0);
+                    };
+                },
+                // 模糊搜索-所搜索的内容 点击选中与不选中
+                handleSearchContent(index, label, value, areaIndex, companyIndex, branchIndex) {
+                    if (branchIndex !== '') {
+                        for (let branch of this.options[areaIndex].children[companyIndex].children) {
+                            index%2==0 ? (value == branch.value ? branch.index = 1 : '') : (value == branch.value ? branch.index = 0 : '');
+                        }
+                    } else if (companyIndex !== '') {
+                        for (let company of this.options[areaIndex].children) {
+                            index%2==0 ? (value == company.value ? company.index = 1 : '') : (value == company.value ? company.index = 0 : '');
+                        }
+                    } else {
+                        for (let area of this.options) {
+                            index%2==0 ? (value == area.value ? area.index = 1 : '') : (value == area.value ? area.index = 0 : '');
+                        }
+                    }
+
+                    if (index%2==0) {// 选中
+                        // 反全选 开始
+                        if (branchIndex !== '') {
+                            let branchAllFlag = true;
+                            for (let branch of this.options[areaIndex].children[companyIndex].children) {
+                                if ((branch.label != '全部') && (branch.index%2 == 0)) {
+                                    branchAllFlag = false;// 只要有一个元素没选中 就置为false, 跳出循环
+                                    break;
+                                }
+                            }
+                            if (branchAllFlag) {// 所有的元素都选择的情况下 全选被选中
+                                for (let branch of this.options[areaIndex].children[companyIndex].children) {
+                                    branch.label == '全部' ? branch.index = 1 : '';
+                                }
+                            }
+                        } else if (companyIndex !== '') {
+                            let companyAllFlag = true;
+                            for (let company of this.options[areaIndex].children) {
+                                if ((company.label != '全部') && (company.index%2 == 0)) {
+                                    companyAllFlag = false;// 只要有一个元素没选中 就置为false, 跳出循环
+                                    break;
+                                }
+                            }
+                            if (companyAllFlag) {// 所有的元素都选择的情况下 全选被选中
+                                for (let company of this.options[areaIndex].children) {
+                                    company.label == '全部' ? company.index = 1 : '';
+                                }
+                            }
+                        } else {
+                            let areaAllFlag = true;
+                            for (let area of this.options) {
+                                if ((area.label != '全部') && (area.index%2 == 0)) {
+                                    areaAllFlag = false;// 只要有一个元素没选中 就置为false, 跳出循环
+                                    break;
+                                }
+                            }
+                            if (areaAllFlag) {// 所有的元素都选择的情况下 全选被选中
+                                for (let area of this.options) {
+                                    area.label == '全部' ? area.index = 1 : '';
+                                }
+                            }
+                        }
+                        this.selectedList.push({ value: value, label: label, areaIndex: areaIndex, companyIndex: companyIndex, branchIndex: branchIndex });
+                    } else {// 取消选中
+                        if (branchIndex !== '') {
+                            for (let branch of this.options[areaIndex].children[companyIndex].children) {
+                                branch.label == '全部' ? branch.index = 0 : '';
+                            }
+                        } else if (companyIndex !== '') {
+                            for (let company of this.options[areaIndex].children) {
+                                company.label == '全部' ? company.index = 0 : '';
+                            }
+                        } else {
+                            for (let area of this.options) {
+                                area.label == '全部' ? area.index = 0 : '';
+                            }
+                        }
+                        let inde = this.selectedList.findIndex(item => value == item.value && areaIndex === item.areaIndex && companyIndex === item.companyIndex && branchIndex === item.branchIndex);
+                        this.selectedList.splice(inde, 1);
+                    }
+                },
+                // 添加MouserOver事件模拟hover
+                handleMouserOver(area) {
+                    var _this=this;
+                    this.$nextTick(function () {
+                    this.options.forEach(function (area) {
+                        _this.$set(area,'active',false);
+                    });
+                    this.$set(area,'active',true);
+                    });
+                },
+            }
+        })
+    </script>
+</body>
+</html>

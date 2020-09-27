@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>限制选择60天时间</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+</head>
+<body>
+    <div id="app">
+        <el-date-picker
+            v-model="date"
+            type="daterange"
+            range-separator="-"
+            value-format="yyyy-MM-dd"
+            :picker-options="pickerOptions"
+            :start-placeholder="''+new Date().getFullYear()+'-'+(new Date().getMonth()+1<10?'0'+(new Date().getMonth()+1):new Date().getMonth()+1)+'-'+(new Date().getDate()<10?'0'+new Date().getDate():new Date().getDate())"
+            :end-placeholder="''+new Date().getFullYear()+'-'+(new Date().getMonth()+1<10?'0'+(new Date().getMonth()+1):new Date().getMonth()+1)+'-'+(new Date().getDate()<10?'0'+new Date().getDate():new Date().getDate())">
+        </el-date-picker>
+    </div>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    date: '',
+                    pickerMinDate: '',
+                    pickerOptions: {
+                        onPick: ({ maxDate, minDate }) => {
+                            this.pickerMinDate = minDate.getTime();
+                            if (maxDate) {
+                                this.pickerMinDate = '';
+                            }
+                        },
+                        disabledDate: time => {
+                            if (this.pickerMinDate !== '') {
+                                const day60 = (60 - 1) * 24 * 3600 * 1000;
+                                let maxTime = this.pickerMinDate + day60;
+                                let minTime = this.pickerMinDate - day60;
+                                return (time.getTime() >= new Date().getTime()) || (time.getTime() < minTime) || (time.getTime() > maxTime);
+                            } else {
+                                return time.getTime() >= new Date().getTime()
+                            }
+                        }
+                    },
+                }
+            }
+        })
+    </script>
+</body>
+</html>

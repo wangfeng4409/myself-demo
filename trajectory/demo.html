@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>行政区热力 - 鼠标事件</title>
+    <link rel="stylesheet" href="https://cache.amap.com/lbs/static/main1119.css" />
+    <style>
+      .amap-info-content.amap-info-outer {
+          background-color: #27272b;
+          color: #f0f2ff;
+          width: 100px;
+      }
+      .bottom-center .amap-info-sharp {
+          border-top: 8px solid #27272b;
+      }
+      .bottom-center button {
+        border: none;
+        color: #2181ff;
+        float: right;
+        background: transparent;
+      }
+      .amap-info-close {
+        color: #606166;
+      }
+    </style>
+</head>
+
+<body>
+    <div id="container" class="container"></div>
+    <div class="button-group">
+        <input id="up-btn" type="button" class="button" value="行政区上浮" />
+    </div>
+    <script src="https://webapi.amap.com/maps?v=1.4.15&"></script>
+    <script src="https://webapi.amap.com/loca?v=1.3.0&"></script>
+    <script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+    <script>
+        var map = new AMap.Map('container', {
+            mapStyle: 'amap://styles/1de318cbb8d12c02303a22c550b9ccc9',
+            viewMode: '3D',
+            features: ['bg', 'road'],
+            center: [107.4976, 32.1697],
+            zoom: 4,
+        });
+
+        var infoWin;
+
+        infoWin = new AMap.InfoWindow({
+            closeWhenClickMap: true
+        });
+
+        var vLayer = new Loca.DistrictLayer({
+            fitView: true,
+            eventSupport: true,
+            drillDown: false,
+            map: map
+        });
+
+        vLayer.on('click', function (ev) {
+            var originalEv = ev.originalEvent;
+
+            var lnglat = map.containerToLngLat(new AMap.Pixel(originalEv.clientX, originalEv.clientY));
+            var feature = ev.feature;
+            var value = ev.value;
+            var property = feature.subFeature.properties;
+
+            infoWin.open(map, lnglat);
+            var content = [
+                '行政区：' + property.name,
+                '<br>',
+                '数据：' + value,
+                '<br>',
+                property.childrenNum ? '<button onclick="go2Adcode(event, ' + property.adcode + ')">下钻</button>' : ''
+            ];
+            infoWin.setContent(content.join(''));
+        });
+
+        function go2Adcode(event, code) {
+            event.stopPropagation();
+            infoWin.close();
+            vLayer.goto(code);
+        }
+
+        $.get('https://a.amap.com/Loca/static/mock/tourist_attractions.csv', function (data) {
+            vLayer.setData(data, {
+                type: 'csv',
+                lnglat: '经纬度',
+                value: '省内5A景区数量'
+            });
+
+            vLayer.setOptions({
+                mode: 'count',
+                style: {
+                    color: ['#0c2c84', '#225ea8', '#225ea8', '#41b6c4', '#7fcdbb', '#c7e9b4', '#ffffcc']
+                },
+                selectStyle: false
+            });
+
+            vLayer.render();
+
+        });
+
+        $('#up-btn').click(function () {
+            vLayer.goto(-1);
+        });
+
+    </script>
+</body>
+
+</html>

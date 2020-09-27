@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+</head>
+<body>
+    <div id="app">
+        <div class="block">
+            <el-cascader
+                v-model="value"
+                :options="options"
+                :show-all-levels="false"
+                :props="props"
+                @change="handleChange"
+                ref="myCascader"
+                style="width: 300px"
+                filterable
+                clearable></el-cascader>
+        </div>
+    </div>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    props: { multiple: true, checkStrictly: true },
+                    value: [],
+                    options: [{
+                        value: 112,
+                        label: '全部',
+                        },{
+                        value: 1,
+                        label: '东南',
+                        children: [{
+                            value: 222,
+                            label: '全部',
+                        }, {
+                            value: 2,
+                            label: '上海',
+                            children: [
+                                { value: 3333, label: '全部' },
+                                { value: 3, label: '普陀' },
+                                { value: 4, label: '黄埔' }
+                            ]
+                        }, {
+                            value: 7,
+                            label: '江苏',
+                            children: [
+                                { value: 888, label: '全部' },
+                                { value: 8, label: '南京' },
+                                { value: 9, label: '苏州' }
+                            ]
+                        }]
+                    }]
+                }
+            },
+            mounted() {
+                
+            },
+            methods: {
+                handleChange(value) {
+                    let tree = this.$refs.myCascader.getCheckedNodes();
+                    console.log(tree, 'tree')
+                    console.log(value);
+                }
+            }
+        })
+    </script>
+    <style>
+        .el-input__inner {
+            height: 50px !important;
+        }
+        .el-cascader__tags {
+            height: 30px;
+            overflow-y: scroll;
+        }
+    </style>
+</body>
+</html>
