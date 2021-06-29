@@ -50,11 +50,11 @@
                 </thead>
                 <tbody v-for="(items, indexs) in tableList" :key="indexs">
                     <tr v-for="(item, index) in items.shopMsg" :key="index">
-                        <td v-if="index==0" :rowspan="items.shopMsg.length">{{ items.shopNum }}</td>
-                        <td v-if="index==0" :rowspan="items.shopMsg.length">{{ items.shopName }}</td>
                         <td>{{ item.flavor }}</td>
                         <td>{{ item.spec }}</td>
                         <td>{{ item.batch }}</td>
+                        <td v-if="index==0" :rowspan="items.shopMsg.length">{{ items.shopNum }}</td>
+                        <td v-if="index==0" :rowspan="items.shopMsg.length">{{ items.shopName }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -78,7 +78,7 @@
                             flavor: '商品口味12',
                             spec: '商品规格12',
                             batch: '商品批次12'
-                        },]
+                        }]
                     },{
                         shopNum: '222',
                         shopName: '商品名称2',
@@ -86,6 +86,10 @@
                             flavor: '商品口味21',
                             spec: '商品规格21',
                             batch: '商品批次21'
+                        },{
+                            flavor: '商品口味22',
+                            spec: '商品规格22',
+                            batch: '商品批次22'
                         }]
                     }]
                 }
